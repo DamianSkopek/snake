@@ -18,6 +18,9 @@ infoBox.addEventListener('click', ()=>{
 infoBox.addEventListener('blur', ()=>{
     generalInfo.classList.remove('general-info-click')
 })
+document.addEventListener('keydown', (e)=>{
+    if(e.key==="h") generalInfo.classList.toggle('general-info-click')
+})
 
 const cnv = document.getElementById("snake")
 const ctx = cnv.getContext("2d")
@@ -172,6 +175,7 @@ let pauseFlag = 0
 document.addEventListener('keydown', (e)=>{
     if(e.key === " "){
         if(pauseFlag === 0){
+            infoBox.blur()
             generalInfo.classList.remove('general-info-click')
             pauseSound.play()
             pauseFlag = 1
@@ -180,6 +184,7 @@ document.addEventListener('keydown', (e)=>{
             game = setInterval(draw, pauseSpeed)
         }
         else if(pauseFlag === 1){
+            infoBox.blur()
             pauseSound.play()
             pauseFlag = 0
             clearInterval(game)
@@ -223,25 +228,6 @@ function draw(){
     }
     dArray = []
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //eating
     if(snakeX == food.x && snakeY == food.y){
         score++
@@ -251,60 +237,20 @@ function draw(){
             localStorage.setItem('highScore', score)
         }
         eat.play()
-        //  food.x = Math.floor(Math.random()*17 + 1) * box
-        //  food.y = Math.floor(Math.random()*15 + 3) * box
-        // food.x = Math.floor(Math.random()*5 + 4) * box
-        // food.y = Math.floor(Math.random()*3 + 7) * box
 
         const snakeString = JSON.stringify(snake)
         const randomFoodArray = boardArray.filter(i => {
            return !snakeString.includes(JSON.stringify(i))
         })
-        const randomFoodIndex = Math.floor(Math.random()*randomFoodArray.length-1)
+        const randomFoodIndex = Math.floor(Math.random()*randomFoodArray.length)
         food.x = randomFoodArray[randomFoodIndex].x
         food.y = randomFoodArray[randomFoodIndex].y
 
-        console.log(randomFoodArray.length);
-        }
-        else{
-            snake.pop()
-        }
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
+    }
+    else{
+        snake.pop()
+    }
+    
     //add new head
     let newHead = {
         x: snakeX,
