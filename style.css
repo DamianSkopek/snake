@@ -19,11 +19,21 @@ canvas{
     visibility: hidden;
     font-size: 60px;
     color: white;
-    animation-duration: 2s;
+    animation-duration: 3s;
     animation-iteration-count: infinite;
-    animation-name: pressEnter;
+    animation-name: paused;
+    animation-timing-function: linear;
+    padding: 20px;
+    background-color: rgb(179, 13, 13);
+    border-radius: 10px;
+    z-index: 1;
 }
-
+@keyframes paused{
+    0% {opacity: .2;}
+    30% {opacity: 1;}
+    70% {opacity: 1;}
+    100% {opacity: .2;}
+}
 /* ======== game over ======== */
 .you-died{
     position: absolute;
@@ -73,19 +83,23 @@ canvas{
 
 /* ======== info box ======== */
 .info-box{
-    height: 50px;
-    width: 50px;
+    height: 70px;
+    width: 70px;
     font-size: 25px;
     font-weight: 700;
     background-color: #fff;
-    transform: translateX(-380px);
+    transform: translate(268px, -268px);
     position: absolute;
     z-index: 150;
     opacity: .5;
+    transition: .2s;
 }
 .info-box:hover{
     opacity: 1;
     cursor: pointer;
+}
+.info-box:focus{
+    outline: none;
 }
 .general-info{
     position: absolute;
@@ -94,6 +108,8 @@ canvas{
     background-image: url('./img/text-box.png');
     background-repeat: no-repeat;
     background-size: 100% 100%;
+    padding: 20px;
+    z-index: 2;
 }
 .general-info h1{
     padding-left: 40px;
@@ -102,6 +118,11 @@ canvas{
 .general-info-click{
     transition: 1s;
     visibility: visible;
+}
+.general-info h2{
+    font-size: 30px;
+    padding-left: 40px;
+    padding-right: 60px;
 }
 
 /* ======== win screen ======== */

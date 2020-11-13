@@ -7,6 +7,9 @@ const generalInfo = document.querySelector(".general-info")
 const winScreen = document.querySelector(".win")
 const winText = document.querySelector(".win-text")
 const pause = document.querySelector(".pause")
+const deadStat = document.querySelector(".times-died")
+const winStat = document.querySelector(".times-won")
+const applesStat = document.querySelector(".apples-eaten")
 
 
 infoBox.addEventListener('click', ()=>{
@@ -36,7 +39,7 @@ let right = new Audio()
 let left = new Audio()
 let down = new Audio()
 let winner = new Audio()
-
+let pauseSound = new Audio()
 dead.src = "audio/dead.mp3"
 eat.src = "audio/eat.mp3"
 up.src = "audio/up.mp3"
@@ -44,6 +47,7 @@ right.src = "audio/right.mp3"
 left.src = "audio/left.mp3"
 down.src = "audio/down.mp3"
 winner.src = "audio/winner.mp3"
+pauseSound.src = "audio/pause.mp3"
 
 //snake
 const snake = []
@@ -51,6 +55,7 @@ snake[0] = {
     x: 9*box,
     y: 10*box
 }
+
 //food
 const food = {
     x: Math.floor(Math.random()*15 + 2) * box,
@@ -60,23 +65,38 @@ if (food.x === 9*box || food.y === 10*box) {
     food.x = Math.floor(Math.random()*15 + 2) * box
     food.y = Math.floor(Math.random()*13 + 4) * box
 }
+//board-foood array
+const boardArray = []
+for(let i=32; i<=544; i+=32){
+    for(let j=96; j<=544; j+=32){
+        boardArray.push({
+            x: i,
+            y: j
+        })
+    }
+}
 
 //snake control
 let d;
+let dArray = []
 document.addEventListener('keydown', direction)
 function direction(e){
     if(e.key === "ArrowUp" && d!="DOWN"){
         d = "UP"
         up.play()
+        dArray.push(d)
     }else if(e.key === "ArrowRight" && d!="LEFT"){
         d = "RIGHT"
         right.play()
+        dArray.push(d)
     }else if(e.key === "ArrowDown" && d!="UP"){
         d = "DOWN"
         down.play()
+        dArray.push(d)
     }else if(e.key === "ArrowLeft" && d!="RIGHT"){
         d = "LEFT"
         left.play()
+        dArray.push(d)
     }
 }
 
@@ -89,7 +109,6 @@ function collision(head, array){
     }
     return false
 }
-
 
 //score
 let score = 0
@@ -108,6 +127,18 @@ if(winCount===null) {
     localStorage.setItem('localWinCount', 0)
     winCount = localStorage.getItem('localWinCount')
 }
+let applesCount = localStorage.getItem('localApplesCount')
+if(applesCount===null) {
+    localStorage.setItem('localApplesCount', 0)
+    applesCount = localStorage.getItem('localApplesCount')
+}
+
+//stats
+setInterval(()=>{
+    applesStat.textContent = `Total Apples collected: ${applesCount}`
+}, 1000)
+deadStat.textContent = `Times died: ${deadCount}`
+winStat.textContent = `Times won: ${winCount}`
 
 //speed
 let gameSpeed = 100;
@@ -125,6 +156,7 @@ document.addEventListener('keydown', (e)=>{
         speedFlag = 1;
     }
 })
+
 //colors
 const colorDefault = "rgb(230, 230, 0)"
 const color0 = "rgb(0, 150, 50)"
@@ -133,18 +165,22 @@ const color2 = "rgb(40, 40, 160)"
 const color3 = "rgb(200, 0, 150)"
 const color4 = "rgb(230, 50, 0)"
 let color = colorDefault;
+
 //pause
 const pauseSpeed = 90000000
 let pauseFlag = 0
 document.addEventListener('keydown', (e)=>{
     if(e.key === " "){
         if(pauseFlag === 0){
+            generalInfo.classList.remove('general-info-click')
+            pauseSound.play()
             pauseFlag = 1
             clearInterval(game)
             pause.style.visibility = 'visible'
             game = setInterval(draw, pauseSpeed)
         }
         else if(pauseFlag === 1){
+            pauseSound.play()
             pauseFlag = 0
             clearInterval(game)
             pause.style.visibility = 'hidden'
@@ -167,41 +203,108 @@ function draw(){
     }
     //draw food
     ctx.drawImage(foodImg, food.x, food.y)
-
     
     //old head position
     let snakeX = snake[0].x
     let snakeY = snake[0].y
     
-
     //direction
-    if (d=="UP") snakeY -= box
-    if (d=="RIGHT") snakeX += box
-    if (d=="DOWN") snakeY += box
-    if (d=="LEFT") snakeX -= box
+    if(dArray.length <= 1){
+        if (d=="UP") snakeY -= box
+        if (d=="RIGHT") snakeX += box
+        if (d=="DOWN") snakeY += box
+        if (d=="LEFT") snakeX -= box
+    }
+    else{
+        if (dArray[0]=="UP") snakeY -= box
+        if (dArray[0]=="RIGHT") snakeX += box
+        if (dArray[0]=="DOWN") snakeY += box
+        if (dArray[0]=="LEFT") snakeX -= box
+    }
+    dArray = []
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     //eating
     if(snakeX == food.x && snakeY == food.y){
         score++
+        applesCount++
+        localStorage.setItem('localApplesCount', applesCount)
         if(score>highScore){
             localStorage.setItem('highScore', score)
         }
         eat.play()
-//          food.x = Math.floor(Math.random()*17 + 1) * box
-//          food.y = Math.floor(Math.random()*15 + 3) * box
-        food.x = Math.floor(Math.random()*5 + 4) * box
-        food.y = Math.floor(Math.random()*3 + 7) * box
-        for(let i=0, n=snake.length; i<n; i++){
-            if (food.x === snake[i].x && food.y === snake[i].y) {
-                food.x = Math.floor(Math.random()*17 + 1) * box
-                food.y = Math.floor(Math.random()*15 + 3) * box
-        }}
-        }else{
+        //  food.x = Math.floor(Math.random()*17 + 1) * box
+        //  food.y = Math.floor(Math.random()*15 + 3) * box
+        // food.x = Math.floor(Math.random()*5 + 4) * box
+        // food.y = Math.floor(Math.random()*3 + 7) * box
+
+        const snakeString = JSON.stringify(snake)
+        const randomFoodArray = boardArray.filter(i => {
+           return !snakeString.includes(JSON.stringify(i))
+        })
+        const randomFoodIndex = Math.floor(Math.random()*randomFoodArray.length-1)
+        food.x = randomFoodArray[randomFoodIndex].x
+        food.y = randomFoodArray[randomFoodIndex].y
+
+        console.log(randomFoodArray.length);
+        }
+        else{
             snake.pop()
         }
+        
+        
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     //add new head
     let newHead = {
         x: snakeX,
@@ -238,6 +341,7 @@ function draw(){
         localStorage.setItem('localDeadCount', deadCount)
         clearInterval(game)
         dead.play();
+        pause.style.zIndex = 0;
         youDied.classList.add("dead")
         blackbox.style.opacity = 1;
         infoBox.style.zIndex = 0;
@@ -248,11 +352,9 @@ function draw(){
             if(e.key === " ") window.location.reload();
         });
         document.removeEventListener('keydown', direction);
-        (()=>{
-            setTimeout(()=>{
-                window.location.reload();
-            },7000)
-        })()
+        setTimeout(()=>{
+            window.location.reload();
+        },7000)
     }
 
     //victory
@@ -260,6 +362,7 @@ function draw(){
         speedFlag = 0
         winner.play();
         winCount++;
+        pause.style.zIndex = 0;
         infoBox.style.zIndex = 0;
         winScreen.style.opacity = 1;
         winScreen.style.transitionDelay = ".5s"
@@ -272,31 +375,22 @@ function draw(){
         addEventListener('keydown', (e)=>{
             if(e.key === " ") window.location.reload();
         });
-        (()=>{
-            setTimeout(()=>{
-                clearInterval(game)
-            },gameSpeed)
-        })();
-        (()=>{
-            setTimeout(()=>{
-                window.location.reload();
-            },50000)
-        })()
+        setTimeout(()=>{
+            clearInterval(game)
+        },gameSpeed)
+        setTimeout(()=>{
+            window.location.reload();
+        },50000)
         
     }
-
-
-
+    
     snake.unshift(newHead)
 
 
     ctx.fillStyle = "white"
-    ctx.font = "35px aial"
+    ctx.font = "40px aial"
     ctx.fillText(score, 2*box, 1.6*box)
     ctx.fillText(`High Score: ${localStorage.getItem('highScore')}`, 4*box, 1.6*box)
-    ctx.fillText(`Times Won: ${localStorage.getItem('localWinCount')}`, 12*box, 1.6*box)
-
 }
-
 
 let game = setInterval(draw, gameSpeed)
